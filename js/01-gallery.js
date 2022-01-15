@@ -2,46 +2,56 @@ import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
 const galleryRef = document.querySelector(".gallery");
-const galleryMarkup = createGallery(galleryItems);
+
+const galleryMarkup = galleryItems.map(createItemGallery).join("");
 
 galleryRef.insertAdjacentHTML('beforeend',galleryMarkup);
 galleryRef.addEventListener("click", galleryClick);
 
+
 function galleryClick (event) {
     event.preventDefault();
     
-    const isGalleryImg = event.target.classList.contains("gallery__image");
-    if (!isGalleryImg) {
+    if (event.target.nodeName !== "IMG") {
         return;
     }
-   
-    const imgEl = event.target;
 
-    const instance = basicLightbox.create(`
-    <img src="${imgEl.dataset.source}" width="800" height="600">`);
+    elem.innerHTML = htmlValue(event.target.dataset.source);
     instance.show();
-
+   
     if (instance.visible()) {  
         galleryRef.addEventListener("keydown", event => {
-            if (event.code === "Escape") { instance.close(); }
+            if (event.code === "Escape") {
+                instance.close();
+                galleryRef.removeEventListener("keydown", event);
+            }
         });
+        
     }
 };
 
-function createGallery(galleryItems) {
-    return galleryItems
-        .map(({ preview, original, description }) => {
-        return `
+const instance = basicLightbox.create('');
+
+const elem = instance.element();
+
+function htmlValue(imgSrc) {
+    return `
+    <img src="${imgSrc}" width="800" height="600">
+    `
+}
+
+function createItemGallery(item) {
+     return `
       <div class="gallery__item">
-        <a class="gallery__link" href="${original}"> 
+        <a class="gallery__link" href="${item.original}"> 
         <img class="gallery__image"
-        src="${preview}"
-        alt="${description}"
-        data-source="${original}"   
+        src="${item.preview}"
+        alt="${item.description}"
+        data-source="${item.original}"   
         />
         </a>
       </div>
-        ` ;
-    })
-    .join("");
+      `
 }
+
+
